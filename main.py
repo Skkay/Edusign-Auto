@@ -20,8 +20,6 @@ BASE64_SIGNATURE = config['BASE64_SIGNATURE']
 
 def main():
     last_courses = get_last_three_months_courses()
-    next_courses = get_next_user_courses()
-
     for course in last_courses['result']:
         if course['STUDENT_PRESENCE'] == False:
             success = post_set_student_present(course['ID'])
@@ -29,6 +27,7 @@ def main():
             if success:
                 print('Successfully signed for course {course_name} ({course_id}) (from last_courses)'.format(course_name=course['NAME'], course_id=course['ID']))
 
+    next_courses = get_next_user_courses()
     for course in next_courses['result']['data']:
         if course['isWaitingSign'] == True:
             success = post_set_student_present(course['ID'])
