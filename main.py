@@ -69,3 +69,4 @@ def post_set_student_present(course_id):
 
 if __name__ == '__main__':
     main()
+    input('Press Enter to exit...')
