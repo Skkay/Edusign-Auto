@@ -17,6 +17,7 @@ JWT = config['JWT']
 SCHOOL_ID = config['SCHOOL_ID']
 STUDENT_ID = config['STUDENT_ID']
 BASE64_SIGNATURE = config['BASE64_SIGNATURE']
+DISCORD_WEBHOOK_URL = config['DISCORD_WEBHOOK_URL']
 
 def main():
     last_courses = get_last_three_months_courses()
@@ -25,7 +26,7 @@ def main():
             success = post_set_student_present(course['ID'])
 
             if success:
-                print('Successfully signed for course {course_name} ({course_id}) (from last_courses)'.format(course_name=course['NAME'], course_id=course['ID']))
+                custom_print('Successfully signed for course {course_name} ({course_id}) (from last_courses)'.format(course_name=course['NAME'], course_id=course['ID']))
 
     next_courses = get_next_user_courses()
     for course in next_courses['result']['data']:
@@ -33,7 +34,7 @@ def main():
             success = post_set_student_present(course['ID'])
 
             if success:
-                print('Successfully signed for course {course_name} ({course_id}) (from next_courses)'.format(course_name=course['NAME'], course_id=course['ID']))
+                custom_print('Successfully signed for course {course_name} ({course_id}) (from next_courses)'.format(course_name=course['NAME'], course_id=course['ID']))
 
 def get_last_three_months_courses():
     res = requests.get(API_GET_THREE_MONTHS_COURSES, headers={'authorization': 'Bearer ' + JWT})
@@ -41,7 +42,7 @@ def get_last_three_months_courses():
     if (res.status_code == 200):
         return res.json()
     
-    print(f'Error: {res.status_code=}, {res.text=}')
+    custom_print(f'Error: {res.status_code=}, {res.text=}')
     exit(1)
 
 def get_next_user_courses():
@@ -50,7 +51,7 @@ def get_next_user_courses():
     if res.status_code == 200:
         return res.json()
     
-    print(f'Error: {res.status_code=}, {res.text=}')
+    custom_print(f'Error: {res.status_code=}, {res.text=}')
     exit(1)
 
 def post_set_student_present(course_id):
@@ -63,8 +64,14 @@ def post_set_student_present(course_id):
     if res.status_code >= 200 and res.status_code <= 299:
         return True
     
-    print(f'Error: {res.status_code=}, {course_id=}, {res.text=}')
+    custom_print(f'Error: {res.status_code=}, {course_id=}, {res.text=}')
     return False
+
+def custom_print(msg):
+    print(msg)
+    requests.post(DISCORD_WEBHOOK_URL, data={
+        'content': msg
+    })
 
 
 if __name__ == '__main__':
